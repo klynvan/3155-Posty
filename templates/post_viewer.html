@@ -1,0 +1,374 @@
+{% extends '_layout.html' %}
+
+<!--if user isn't logged in then they get option to login, if logged in they can post-->
+{% block login_or_post %}
+{% if not current_user.is_authenticated %} <a class="nav-link" href="{{ url_for('login_page') }}">Login</a>
+{% else %}
+<a class="nav-link" href="{{ url_for('create_new_post_page') }}">Post</a>
+{% endif %} {% endblock %}
+
+<!--if they are logged in display their name and univeristy, also make it clicckable so they can edit their stuff-->
+{% block currentUser %}
+{% if current_user.is_authenticated %}
+<a class="nav-link active" href="{{ url_for('account_info_page') }}">
+  {{current_user.username}} | {{current_user.university}}
+</a>
+{% else %}
+<a class="nav-link inactive"> </a>
+{% endif %}
+{% endblock %}
+
+
+
+
+{% block body %}
+
+
+
+<section class="gradient-custom" style="background-color: #eee;">
+
+  <div class="container my-1 py-1">
+    <div class="row d-flex justify-content-center">
+      <div class="col-md-12 col-lg-10 col-xl-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex flex-start align-items-center">
+              <img class="rounded-circle shadow-1-strong me-3"
+                src="{{ url_for('static', filename= post.user.avatar_url ) }}"  alt="avatar" width="60" height="60" />
+              <div>
+                <h6 class="fw-bold text-primary mb-1">{{ post.user.username }} | {{ post.user.university }}</h6>
+                <p class="text-muted small mb-0">
+                  {{ post.post_datetime.strftime("%Y-%m-%d %H:%M") }}
+                </p>
+              </div>
+            </div>
+
+            <p class="card-title">
+              {{ post.post_title }}
+            </p>
+
+            <p class="mt-3 mb-4 pb-2">
+              {{ post.post_text }}
+            </p>
+
+            <div class="small d-flex justify-content-start">
+              <div class="small d-flex justify-content-start">
+
+                <p class="mb-0"> {{ post.number_likes }}</p>
+
+                <a href="/like/{{ post.post_id }}" class="d-flex align-items-center me-3">
+                  <img src="{{ url_for('static', filename='like_button.png') }}" alt="like" width="25" height="25" />
+                </a>
+
+
+
+                <a href="/comment_text_area/{{ post.post_id }}" class="d-flex align-items-center me-3">
+                  <img src="{{ url_for('static', filename='comment_button.png') }}" alt="like" width="25" height="25" />
+                </a>
+
+              </div>
+
+              {% if current_user.is_authenticated %}
+              {% if current_user.user_id == post.user_id %}
+
+              <div class="small d-flex justify-content-start">
+                <div class="dropdown-container" class="d-flex align-items-center me-3" tabindex="-1">
+                  <div class="three-dots"></div>
+                  <div class="dropdown">
+                    <a href="/delete_post_post_viewer/{{ post.post_id }}">
+                      <div>delete</div>
+                    </a>
+                    <a href="/edit_post_page/{{ post.post_id }}">
+                      <div>edit</div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {% endif %}
+              {% endif %}
+
+            </div>
+
+
+          </div>
+
+
+
+
+
+          {% if parent_comment %}
+          <div class="card-footer py-3 border-0" style="background-color: #f8f9fa;">
+            <div class="d-flex flex-start w-100">
+              <img class="rounded-circle shadow-1-strong me-3"
+                src="{{ url_for('static', filename= current_user.avatar_url ) }}" alt="avatar" width="40" height="40" />
+              <div class="form-outline w-100">
+
+
+                <form action="/comment_text_area/comment/{{ post.post_id }}">
+
+
+                  <textarea name="comment_text" class="form-control" id="textAreaExample" rows="4"
+                    style="background: #fff;"></textarea>
+                  <label class="form-label" for="textAreaExample">Message</label>
+              </div>
+            </div>
+            <div class="float-end mt-2 pt-1">
+
+
+              <button type="submit" value="post_comment" name="post_comment" class="btn btn-primary btn-sm">Post
+                comment</button>
+              </form>
+
+              <form action="/post_viewer/{{ post.post_id }}">
+                <button type="submit" value="cancel_comment" name="cancel_comment"
+                  class="btn btn-outline-primary btn-sm">Cancel</button>
+              </form>
+            </div>
+          </div>
+          {% endif %}
+
+
+          {% if parent_comment_edit %}
+          <div class="card-footer py-3 border-0" style="background-color: #f8f9fa;">
+            <div class="d-flex flex-start w-100">
+              <img class="rounded-circle shadow-1-strong me-3"
+                src="{{ url_for('static', filename= current_user.avatar_url ) }}" alt="avatar" width="40" height="40" />
+              <div class="form-outline w-100">
+
+
+                <form action="/edit_parent_comment/{{post.post_id}}/{{ comment_to_edit.comment_id }}">
+
+
+                  <textarea name="comment_text" class="form-control" id="textAreaExample" rows="4"
+                    style="background: #fff;"
+                    value="{{ comment_to_edit.comment_text }}">{{ comment_to_edit.comment_text }}</textarea>
+                  <label class="form-label" for="textAreaExample">comment editor</label>
+              </div>
+            </div>
+            <div class="float-end mt-2 pt-1">
+
+
+              <button type="submit" value="post_comment" name="post_comment" class="btn btn-primary btn-sm">Edit
+                comment</button>
+              </form>
+
+              <form action="/post_viewer/{{ post.post_id }}">
+                <button type="submit" value="cancel_comment" name="cancel_comment"
+                  class="btn btn-outline-primary btn-sm">Cancel</button>
+              </form>
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="container my-1 py-1">
+    <div class="row d-flex justify-content-center">
+      <div class="col-md-12 col-lg-10 col-xl-8">
+        <div class="card">
+          <div class="card-body p-4">
+            <h4 class="text-center mb-4 pb-2">Comments</h4>
+
+            <div class="row">
+              <div class="col">
+
+
+                {% for parent_comment, children_comments in comment_dictionary.items() %}
+
+                <div class="d-flex flex-start">
+                  <img class="rounded-circle shadow-1-strong me-3"
+                    src="{{ url_for('static', filename= parent_comment.user.avatar_url ) }}"  alt="avatar" width="65" height="65" />
+                  <div class="flex-grow-1 flex-shrink-1">
+                    <div>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <p class="mb-1">
+                          {{ parent_comment.user.username }} <span class="small"> - {{
+                            parent_comment.comment_datetime.strftime("%Y-%m-%d %H:%M") }}</span>
+                        </p>
+                        <a href="/comment_text_area/{{ post.post_id }}/{{ parent_comment.comment_id }}"><i
+                            class="fas fa-reply fa-xs"></i><span class="small"> reply</span></a>
+                      </div>
+                      <p class="small mb-0">
+                        {{ parent_comment.comment_text }}
+                      </p>
+
+
+                      {% if current_user.is_authenticated %}
+                      {% if current_user.user_id == parent_comment.user_id %}
+
+
+                      <div class="small d-flex justify-content-start">
+                        <div class="dropdown-container" class="d-flex align-items-center me-3" tabindex="-1">
+                          <div class="three-dots"></div>
+                          <div class="dropdown">
+                            <a href="/delete_comment/{{ post.post_id }}/{{ parent_comment.comment_id }}">
+                              <div>delete</div>
+                            </a>
+                            <a href="/edit_parent_comment_text_area/{{ post.post_id }}/{{ parent_comment.comment_id }}">
+                              <div>edit</div>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+
+                      {% endif %}
+                      {% endif %}
+
+
+                    </div>
+
+
+                    <!--For making child commments-->
+                    {% if comment_to_reply %}
+                    {% if comment_reply_bool %}
+                    {% if comment_to_reply.comment_id == parent_comment.comment_id %}
+
+
+                    <div class="card-footer py-3 border-0" style="background-color: #f8f9fa;">
+                      <div class="d-flex flex-start w-100">
+                        <img class="rounded-circle shadow-1-strong me-3"
+                        src="{{ url_for('static', filename= current_user.avatar_url ) }}" alt="avatar" width="20"
+                          height="20" />
+                        <div class="form-outline w-100">
+
+
+                          <form action="/comment_text_area/comment/{{ post.post_id }}/{{ parent_comment.comment_id }}">
+
+
+                            <textarea name="comment_text" class="form-control" id="textAreaExample" rows="4"
+                              style="background: #fff;"></textarea>
+                            <label class="form-label" for="textAreaExample">Message</label>
+                        </div>
+                      </div>
+                      <div class="float-end mt-2 pt-1">
+
+
+                        <button type="submit" value="post_comment" name="post_comment"
+                          class="btn btn-primary btn-sm">Post comment</button>
+                        </form>
+
+                        <form action="/post_viewer/{{ post.post_id }}">
+                          <button type="submit" value="cancel_comment" name="cancel_comment"
+                            class="btn btn-outline-primary btn-sm">Cancel</button>
+                        </form>
+                      </div>
+                    </div>
+
+
+                    {% endif %}
+                    {% endif %}
+                    {% endif %}
+
+                    <!--for editing children commments-->
+                    {% if child_comment_edit %}
+                    {% if comment_to_reply.comment_id == parent_comment.comment_id %}
+
+                    <div class="card-footer py-3 border-0" style="background-color: #f8f9fa;">
+                      <div class="d-flex flex-start w-100">
+                        <img class="rounded-circle shadow-1-strong me-3"
+                          src="{{ url_for('static', filename= child_comment.user.avatar_url ) }}" alt="avatar" width="40"
+                          height="40" />
+                        <div class="form-outline w-100">
+
+
+                          <form action="/edit_parent_comment/{{post.post_id}}/{{ comment_to_edit.comment_id }}">
+
+
+                            <textarea name="comment_text" class="form-control" id="textAreaExample" rows="4"
+                              style="background: #fff;"
+                              value="{{ comment_to_edit.comment_text }}">{{ comment_to_edit.comment_text }}</textarea>
+                            <label class="form-label" for="textAreaExample">comment editor</label>
+                        </div>
+                      </div>
+                      <div class="float-end mt-2 pt-1">
+
+
+                        <button type="submit" value="post_comment" name="post_comment"
+                          class="btn btn-primary btn-sm">Edit comment</button>
+                        </form>
+
+                        <form action="/post_viewer/{{ post.post_id }}">
+                          <button type="submit" value="cancel_comment" name="cancel_comment"
+                            class="btn btn-outline-primary btn-sm">Cancel</button>
+                        </form>
+                      </div>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+
+
+
+                    {% if children_comments is iterable %}
+                    {% for child_comment in children_comments %}
+
+
+                    <div class="d-flex flex-start mt-4">
+                      <a class="me-3" href="#">
+                        <img class="rounded-circle shadow-1-strong"
+                          src="{{ url_for('static', filename= child_comment.user.avatar_url ) }}" alt="avatar" width="65"
+                          height="65" />
+                      </a>
+                      <div class="flex-grow-1 flex-shrink-1">
+                        <div>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <p class="mb-1">
+                              {{ child_comment.user.username }}<span class="small">- {{
+                                child_comment.comment_datetime.strftime("%Y-%m-%d %H:%M") }}</span>
+                            </p>
+                          </div>
+                          <p class="small mb-0">
+                            {{ child_comment.comment_text }}
+                          </p>
+
+
+                          {% if current_user.is_authenticated %}
+                          {% if current_user.user_id == child_comment.user_id %}
+
+
+                          <div class="small d-flex justify-content-start">
+                            <div class="dropdown-container" class="d-flex align-items-center me-3" tabindex="-1">
+                              <div class="three-dots"></div>
+                              <div class="dropdown">
+                                <a href="/delete_comment/{{ post.post_id }}/{{ child_comment.comment_id }}">
+                                  <div>delete</div>
+                                </a>
+                                <a href="/edit_child_comment_text_area/{{ post.post_id }}/{{ parent_comment.comment_id }}/{{ child_comment.comment_id }}">
+                                  <div>edit</div>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+
+                          {% endif %}
+                          {% endif %}
+
+                        </div>
+                      </div>
+                    </div>
+
+                    {% endfor %}
+                    {% endif %}
+
+                  </div>
+
+                </div>
+
+                {% endfor %}
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{% endblock %}

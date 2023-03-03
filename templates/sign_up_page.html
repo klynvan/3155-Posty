@@ -1,0 +1,143 @@
+{% extends '_layout.html' %}
+
+{% block content %}
+{% for message in get_flashed_message() %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  {{message}}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor%}
+{% endblock %}
+
+
+<!--if user isn't logged in then they get option to login, if logged in they can post-->
+{% block login_or_post %}
+{% if not current_user.is_authenticated %} <a class="nav-link" href="{{ url_for('login_page') }}">Login</a>
+{% else %}
+<a class="nav-link" href="{{ url_for('create_new_post_page') }}">Post</a>
+{% endif %} {% endblock %}
+
+<!--if they are logged in display their name and univeristy, also make it clicckable so they can edit their stuff-->
+{% block currentUser %}
+{% if current_user.is_authenticated %}
+<a class="nav-link active" href="{{ url_for('account_info_page') }}">
+  {{current_user.name}} | {{current_user.university}}
+</a>
+{% else %}
+<a class="nav-link inactive"> </a>
+{% endif %}
+{% endblock %}
+
+
+
+
+
+
+{% block body %}
+
+<section class="vh-100" style="background-color: #eee;">
+  <div class="container h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-lg-12 col-xl-11">
+        <div class="card text-black" style="border-radius: 25px;">
+          <div class="card-body p-md-5">
+            <div class="row justify-content-center">
+              <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+
+                <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Sign up</p>
+
+                <form class="mx-1 mx-md-4" action="/sign_up" method="post">
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+                    <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                    <div class="form-outline flex-fill mb-0">
+                      <input name="firstname" type="text" id="form3Example1c" class="form-control" required />
+                      <label class="form-label" for="form3Example1c">Your First Name</label>
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+                    <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                    <div class="form-outline flex-fill mb-0">
+                      <input name="lastname" type="text" id="form3Example1c" class="form-control" required />
+                      <label class="form-label" for="form3Example1c">Your Last Name</label>
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+                    <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                    <div class="form-outline flex-fill mb-0">
+                      <input name="username" type="text" id="form3Example1c" class="form-control" required />
+                      <label class="form-label" for="form3Example1c">Username</label>
+                    </div>
+                  </div>
+
+
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+                    <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                    <div class="form-outline flex-fill mb-0">
+                      <select class="form-select" id="floatingSelect" aria-label="Floating label select example"name="comp_select" required>
+                        <option selected disabled>university</option>
+                          {% for i in uni_list %}
+                          <option value="{{ i.acronym }}">{{ i.acronym }}</option>
+                          {% endfor %}
+                        </select>
+                        <label class="form-label" for="form3Example1c">Your University</label>
+                    </div>
+                  </div>
+                  
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+                    <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                    <div class="form-outline flex-fill mb-0">
+                      <input name="email" type="email" id="form3Example3c" class="form-control" required />
+                      <label class="form-label" for="form3Example3c">Your Email</label>
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+                    <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                    <div class="form-outline flex-fill mb-0">
+                      <input name="password" type="password" id="form3Example4c" class="form-control" minlength="8"
+                        required />
+                      <label class="form-label" for="form3Example4c">Password</label>
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+                    <i class="fas fa-key fa-lg me-3 fa-fw"></i>
+                    <div class="form-outline flex-fill mb-0">
+                      <input name="repeat_password" type="password" id="form3Example4cd" class="form-control"
+                        minlength="8" required />
+                      <label class="form-label" for="form3Example4cd">Repeat your password</label>
+                    </div>
+                  </div>
+
+                  <div class="form-check d-flex justify-content-center mb-5">
+                    <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3c" />
+                    <label class="form-check-label" for="form2Example3">
+                      I agree all statements in <a href="#!">Terms of service</a>
+                    </label>
+                  </div>
+
+                  <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                  </div>
+
+                </form>
+
+              </div>
+              <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
+
+                <img src="{{ url_for('static', filename='posty_logo.png') }}" class="img-fluid" alt="Sample image">
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

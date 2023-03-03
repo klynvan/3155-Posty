@@ -1,0 +1,49 @@
+{% extends '_layout.html' %}
+
+{% block content %}
+{% for message in get_flashed_message() %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  {{message}}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor%}
+{% endblock %}
+
+
+<!--if user isn't logged in then they get option to login, if logged in they can post-->
+{% block login_or_post %}
+{% if current_user == None %}<a class="nav-link" href="{{ url_for('login_page') }}">Login</a>
+{% else %}
+<a class="nav-link" href="{{ url_for('create_new_post_page') }}">Post</a>
+{% endif %} {% endblock %}
+
+<!--if they are logged in display their name and univeristy, also make it clicckable so they can edit their stuff-->
+{% block currentUser %}
+<a class="nav-link active" href="{% if current_user != None %}  {{ url_for('account_info_page') }}  {% endif %}">
+  {% if current_user != None %}{{current_user.username}} | {{current_user.university}}
+</a>
+{% endif %}{% endblock %}
+
+
+{% block body %}
+<div class="container-sm" class="input-group">
+  <form action="/create_new_post" method="post">
+    <!-- post title input-->
+    <div class="form-outline mb-4">
+      <label class="form-label" for="form4Example2">Title</label>
+      <input name="title" type="text" id="form4Example2" class="form-control" required />
+    </div>
+
+    <!-- post input -->
+    <div class="form-outline mb-4">
+      <label class="form-label" for="form4Example3">post contents</label>
+      <textarea name="post" class="form-control" id="form4Example3" rows="4" minlength="8" required></textarea>
+    </div>
+
+
+    <!-- Submit button -->
+    <button type="submit" class="btn btn-primary btn-block mb-4">Send</button>
+  </form>
+</div>
+
+{% endblock %}

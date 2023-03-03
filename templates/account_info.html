@@ -1,0 +1,185 @@
+{% extends '_layout.html' %}
+
+<!--if user isn't logged in then they get option to login, if logged in they can post-->
+{% block login_or_post %}
+{% if not current_user.is_authenticated %} <a class="nav-link" href="{{ url_for('login_page') }}">Login</a>
+{% else %}
+<a class="nav-link" href="{{ url_for('create_new_post_page') }}">Post</a>
+{% endif %} {% endblock %}
+
+<!--if they are logged in display their name and univeristy, also make it clicckable so they can edit their stuff-->
+{% block currentUser %}
+{% if current_user.is_authenticated %}
+<a class="nav-link active" href="{{ url_for('account_info_page') }}">
+  {{current_user.username}} | {{current_user.university}}
+</a>
+{% else %}
+<a class="nav-link inactive"> </a>
+{% endif %}
+{% endblock %}
+
+
+
+
+{% block body %}
+
+
+<section class="vh-100" style="background-color: #eee;">
+  <div class="container h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-lg-12 col-xl-11">
+        <div class="card text-black" style="border-radius: 25px;">
+          <div class="card-body p-md-5">
+            <div class="row justify-content-center">
+
+              <h1>Edit Account Info</h1>
+
+              <form class="mx-1 mx-md-4" action="/edit_profile" method="post">
+
+                <div class="d-flex flex-row align-items-center mb-4">
+                  <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                  <div class="form-outline flex-fill mb-0">
+                    <input name="firstname" type="text" id="form3Example1c" class="form-control"
+                      value="{{ current_user.first_name }}" required />
+                    <label class="form-label" for="form3Example1c">Your First Name</label>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-row align-items-center mb-4">
+                  <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                  <div class="form-outline flex-fill mb-0">
+                    <input name="lastname" type="text" id="form3Example1c" class="form-control"
+                      value="{{ current_user.last_name }}" required />
+                    <label class="form-label" for="form3Example1c">Your Last Name</label>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-row align-items-center mb-4">
+                  <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                  <div class="form-outline flex-fill mb-0">
+                    <input name="username" type="text" id="form3Example1c" class="form-control"
+                      value="{{ current_user.username }}" required />
+                    <label class="form-label" for="form3Example1c">Username</label>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-row align-items-center mb-4">
+                  <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                  <div class="form-outline flex-fill mb-0">
+                    <select class="form-select" id="floatingSelect" aria-label="Floating label select example"name="comp_select" required>
+                      <option selected disabled>university</option>
+                        {% for i in uni_list %}
+                        <option value="{{ i.acronym }}">{{ i.acronym }}</option>
+                        {% endfor %}
+                      </select>
+                      <label class="form-label" for="form3Example1c">Your University</label>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-row align-items-center mb-4">
+                  <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                  <div class="form-outline flex-fill mb-0">
+                    <input name="email" type="email" id="form3Example3c" class="form-control"
+                      value="{{ current_user.email }}" required />
+                    <label class="form-label" for="form3Example3c">Your Email</label>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                  <button type="submit" class="btn btn-primary btn-lg">Submit Changes</button>
+                </div>
+
+              </form>
+
+
+              <hr>
+              <h1>Change Password</h1>
+              <form action="/change_password" method="post">
+
+                <div class="d-flex flex-row align-items-center mb-4">
+                  <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                  <div class="form-outline flex-fill mb-0">
+                    <input name="current_password" type="password" id="form3Example4c" class="form-control"
+                      minlength="8" required />
+                    <label class="form-label" for="form3Example4c">Current Password</label>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-row align-items-center mb-4">
+                  <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                  <div class="form-outline flex-fill mb-0">
+                    <input name="new_password" type="password" id="form3Example4c" class="form-control"
+                      minlength="8" required />
+                    <label class="form-label" for="form3Example4c">New Password</label>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-row align-items-center mb-4">
+                  <i class="fas fa-key fa-lg me-3 fa-fw"></i>
+                  <div class="form-outline flex-fill mb-0">
+                    <input name="repeat_new_password" type="password" id="form3Example4cd" class="form-control"
+                      minlength="8" required />
+                    <label class="form-label" for="form3Example4cd">Repeat new password</label>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                  <button type="submit" class="btn btn-primary btn-lg">Change Password</button>
+                </div>
+
+              </form>
+
+              <hr>
+
+              <h1>Upload Profile Picture</h1>
+
+              <div class="d-flex flex-row align-items-center mb-4">
+                <form role="form" action="/uploads/pp/" method="post" enctype=multipart/form-data>
+                  <img src="{{ url_for('static', filename= current_user.avatar_url ) }}" width="60" height="60"
+                    class="mx-auto img-fluid img-circle d-block" alt="avatar">
+                  <label class="custom-file">
+                    <input type="file" id="file" name="photo" class="custom-file-input">
+                    <span class="custom-file-control">Choose File</span>
+                  </label>
+                  <button type="submit" class="btn btn-outline-success btn-sm">Upload Photo</button>
+                </form>
+              </div>
+
+              <hr>
+
+              <h1>Logout</h1>
+              <div class="container-sm" class="input-group">
+                <form action="/logout" method="post">
+
+
+                  <!-- logout button -->
+                  <button type="submit" class="btn btn-primary btn-block mb-4">Logout</button>
+                </form>
+              </div>
+
+
+              <hr>
+              <hr>
+              <h1>Delete account</h1>
+
+              <div class="container-sm" class="input-group">
+                <form action="/delete_account" method="post">
+
+
+                  <!-- delete account button -->
+                  <button type="submit" class="btn btn-primary btn-block mb-4">Delete Account</button>
+                </form>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+</section>
+
+
+
+
+
+{% endblock %}
